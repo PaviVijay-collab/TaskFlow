@@ -1,7 +1,7 @@
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
-from config import config
+from app.config import config
 
 engine = create_engine(config.DATABASE_URL)
 sessionLocal = sessionmaker(bind=engine, autoflush=False)
