@@ -1,18 +1,22 @@
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy import create_engine
 
-from config import config
+from app.config import config
 
 engine = create_engine(config.DATABASE_URL)
-sessionLocal = sessionmaker(bind=engine, autoflush=False)
+
+sessionLocal = sessionmaker(
+    bind=engine,
+    autoflush=False
+)
+
+Base = declarative_base()
 
 
 def get_db():
-
     db = sessionLocal()
 
     try:
         yield db
-
     finally:
         db.close()
