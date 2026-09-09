@@ -1,4 +1,4 @@
-from settings import settings
+from app.settings import settings
 
 
 class Config:
