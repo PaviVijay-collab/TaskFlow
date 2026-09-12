@@ -1,17 +1,6 @@
-# from fastapi import APIRouter, Depends, HTTPException, status
-# from sqlalchemy.orm import Session
-
-# from app.database import get_db
-# from app.models.user import User
-# from app.models.role import Role
-# from app.schemas.user import UserCreate, UserResponse
-# from app.services.security import hash_password
-# from fastapi.security import OAuth2PasswordRequestForm
-# from app.services.security import hash_password, verify_password
-# from app.services.jwt import create_access_token
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -23,10 +12,12 @@ from app.services.jwt import create_access_token
 from app.services.auth import get_current_user
 from app.services.authorization import require_role
 
+
 router = APIRouter(
     prefix="/auth",
     tags=["Authentication"]
 )
+
 
 @router.get("/me", response_model=UserResponse)
 def get_me(
@@ -45,11 +36,13 @@ def register_user(
     db: Session = Depends(get_db)
 ):
     # Check whether email already exists
-    existing_user = (
-        db.query(User)
-        .filter(User.email == user_data.email)
-        .first()
+    result = db.execute(
+        select(User).where(
+            User.email == user_data.email
+        )
     )
+
+    existing_user = result.scalar_one_or_none()
 
     if existing_user:
         raise HTTPException(
@@ -58,11 +51,13 @@ def register_user(
         )
 
     # Check whether role exists
-    role = (
-        db.query(Role)
-        .filter(Role.id == user_data.role_id)
-        .first()
+    result = db.execute(
+        select(Role).where(
+            Role.id == user_data.role_id
+        )
     )
+
+    role = result.scalar_one_or_none()
 
     if not role:
         raise HTTPException(
@@ -87,16 +82,19 @@ def register_user(
 
     return user
 
+
 @router.post("/login")
 def login_user(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
-    user = (
-        db.query(User)
-        .filter(User.email == form_data.username)
-        .first()
+    result = db.execute(
+        select(User).where(
+            User.email == form_data.username
+        )
     )
+
+    user = result.scalar_one_or_none()
 
     if not user:
         raise HTTPException(
@@ -123,6 +121,8 @@ def login_user(
         "access_token": access_token,
         "token_type": "bearer"
     }
+
+
 @router.get("/developer-only")
 def developer_only(
     current_user: User = Depends(
@@ -133,6 +133,7 @@ def developer_only(
         "message": "You are a Developer",
         "user": current_user.name
     }
+
 
 @router.get("/admin-only")
 def admin_only(
