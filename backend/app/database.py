@@ -10,8 +10,6 @@ sessionLocal = sessionmaker(
     autoflush=False
 )
 
-Base = declarative_base()
-
 
 def get_db():
     db = sessionLocal()
