@@ -1,19 +1,14 @@
 from datetime import datetime, timedelta, timezone
 
 from jose import JWTError, jwt
-
 from app.config import config
-
-
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
 def create_access_token(data: dict) -> str:
     to_encode = data.copy()
 
     expire = datetime.now(timezone.utc) + timedelta(
-        minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+        minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES
     )
 
     to_encode.update({
@@ -23,7 +18,7 @@ def create_access_token(data: dict) -> str:
     return jwt.encode(
         to_encode,
         config.SECRET_KEY,
-        algorithm=ALGORITHM
+        algorithm=config.ALGORITHM
     )
 
 
@@ -32,7 +27,7 @@ def decode_access_token(token: str) -> dict:
         payload = jwt.decode(
             token,
             config.SECRET_KEY,
-            algorithms=[ALGORITHM]
+            algorithms=[config.ALGORITHM]
         )
 
         return payload
