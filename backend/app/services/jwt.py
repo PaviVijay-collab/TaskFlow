@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta, timezone
 
 from jose import JWTError, jwt
-
 from app.config import config
 
 
@@ -73,6 +72,9 @@ def decode_refresh_token(token: str) -> dict:
             config.SECRET_KEY,
             algorithms=[config.JWT_ALGORITHM]
         )
+
+        if payload.get("type") != "refresh":
+            return {}
 
         if payload.get("type") != "refresh":
             return {}
